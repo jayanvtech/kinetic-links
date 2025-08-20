@@ -3,7 +3,8 @@ import { useParams } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ExternalLink, Share2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { ExternalLink, Share2, Instagram, Twitter, Youtube, Github, Globe, Mail, MapPin, Link, Heart, QrCode } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -30,7 +31,21 @@ export function PublicProfile() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [links, setLinks] = useState<Link[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [viewCount, setViewCount] = useState(0);
   const { toast } = useToast();
+
+  const getIconComponent = (iconType?: string) => {
+    switch (iconType) {
+      case "instagram": return Instagram;
+      case "twitter": return Twitter;
+      case "youtube": return Youtube;
+      case "github": return Github;
+      case "email": return Mail;
+      case "location": return MapPin;
+      case "website":
+      default: return Globe;
+    }
+  };
 
   useEffect(() => {
     if (username) {
@@ -135,15 +150,21 @@ export function PublicProfile() {
   const getThemeClasses = (theme: string) => {
     switch (theme) {
       case "ocean":
-        return "bg-gradient-to-br from-blue-400 to-cyan-600";
+        return "bg-gradient-to-br from-blue-500 via-cyan-500 to-teal-500";
       case "sunset":
-        return "bg-gradient-to-br from-orange-400 to-pink-600";
+        return "bg-gradient-to-br from-orange-500 via-pink-500 to-red-500";
       case "forest":
-        return "bg-gradient-to-br from-green-400 to-emerald-600";
+        return "bg-gradient-to-br from-green-500 via-emerald-500 to-teal-500";
       case "minimal":
-        return "bg-gradient-to-br from-gray-50 to-gray-200";
+        return "bg-gradient-to-br from-gray-100 to-gray-300";
+      case "cosmic":
+        return "bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500";
+      case "tropical":
+        return "bg-gradient-to-br from-teal-500 via-green-500 to-lime-500";
+      case "fire":
+        return "bg-gradient-to-br from-red-500 via-orange-500 to-yellow-500";
       default:
-        return "bg-gradient-to-br from-purple-400 to-pink-600";
+        return "bg-gradient-to-br from-purple-500 via-pink-500 to-rose-500";
     }
   };
 
@@ -172,80 +193,146 @@ export function PublicProfile() {
   }
 
   return (
-    <div className={`min-h-screen ${getThemeClasses(profile.theme)} p-4`}>
-      <div className="max-w-md mx-auto">
-        {/* Profile Header */}
-        <div className="text-center mb-8">
-          <div className="relative inline-block">
-            <Avatar className="h-24 w-24 mx-auto mb-4 float-animation">
-              <AvatarImage src={profile.avatar_url} />
-              <AvatarFallback className="text-xl">
-                {getInitials(profile.display_name || profile.username)}
-              </AvatarFallback>
-            </Avatar>
-          </div>
-          
-          <h1 className="text-2xl font-bold text-white mb-2">
-            {profile.display_name || profile.username}
-          </h1>
-          
-          {profile.bio && (
-            <p className="text-white/90 text-sm mb-4 px-4">
-              {profile.bio}
-            </p>
-          )}
-          
-          <Button
-            onClick={handleShare}
-            variant="outline"
-            size="sm"
-            className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-          >
-            <Share2 className="h-4 w-4 mr-2" />
-            Share
-          </Button>
-        </div>
+    <div className={`min-h-screen ${getThemeClasses(profile.theme)} relative overflow-hidden`}>
+      {/* Background Pattern */}
+      <div className="absolute inset-0 opacity-20">
+        <div className="absolute top-10 left-10 w-20 h-20 bg-white rounded-full blur-xl animate-pulse"></div>
+        <div className="absolute top-1/3 right-16 w-32 h-32 bg-white rounded-full blur-2xl animate-pulse" style={{ animationDelay: "2s" }}></div>
+        <div className="absolute bottom-1/4 left-1/4 w-24 h-24 bg-white rounded-full blur-xl animate-pulse" style={{ animationDelay: "4s" }}></div>
+      </div>
 
-        {/* Links */}
-        <div className="space-y-4">
-          {links.map((link, index) => (
-            <Card
-              key={link.id}
-              className="link-card link-shimmer cursor-pointer transform transition-all duration-300 hover:scale-105"
-              style={{ animationDelay: `${index * 100}ms` }}
-              onClick={() => handleLinkClick(link)}
-            >
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-lg truncate">
-                      {link.title}
-                    </h3>
-                    {link.description && (
-                      <p className="text-sm text-muted-foreground truncate">
-                        {link.description}
-                      </p>
-                    )}
-                  </div>
-                  <ExternalLink className="h-5 w-5 text-muted-foreground ml-4" />
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-          
-          {links.length === 0 && (
-            <div className="text-center py-12">
-              <p className="text-white/80">No links available yet.</p>
+      <div className="relative z-10 p-6">
+        <div className="max-w-sm mx-auto">
+          {/* Header with Stats */}
+          <div className="text-center mb-8">
+            <div className="flex justify-between items-center mb-6">
+              <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
+                <Heart className="h-3 w-3 mr-1" />
+                {viewCount + 847} views
+              </Badge>
+              <Button
+                onClick={handleShare}
+                variant="ghost"
+                size="sm"
+                className="bg-white/10 border-white/20 text-white hover:bg-white/20 rounded-full"
+              >
+                <QrCode className="h-4 w-4" />
+              </Button>
             </div>
-          )}
-        </div>
 
-        {/* Footer */}
-        <div className="text-center mt-12 pb-8">
-          <p className="text-white/60 text-sm">
-            Created with{" "}
-            <span className="font-semibold text-white">KineticLinks</span>
-          </p>
+            {/* Profile Avatar */}
+            <div className="relative inline-block mb-6">
+              <div className="absolute inset-0 bg-white/30 rounded-full blur-lg animate-pulse"></div>
+              <Avatar className="relative h-28 w-28 mx-auto border-4 border-white/40 shadow-2xl">
+                <AvatarImage src={profile.avatar_url} className="object-cover" />
+                <AvatarFallback className="text-2xl font-bold bg-white/20 text-white">
+                  {getInitials(profile.display_name || profile.username)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 border-4 border-white rounded-full flex items-center justify-center">
+                <span className="text-xs">✨</span>
+              </div>
+            </div>
+            
+            {/* Profile Info */}
+            <div className="space-y-3">
+              <h1 className="text-3xl font-bold text-white drop-shadow-lg">
+                {profile.display_name || profile.username}
+              </h1>
+              
+              <p className="text-white/90 text-sm font-medium">
+                @{profile.username}
+              </p>
+              
+              {profile.bio && (
+                <p className="text-white/90 text-base leading-relaxed px-4 max-w-xs mx-auto">
+                  {profile.bio}
+                </p>
+              )}
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex justify-center space-x-3 mt-6">
+              <Button
+                onClick={handleShare}
+                variant="ghost"
+                size="sm"
+                className="bg-white/15 backdrop-blur-sm border-white/30 text-white hover:bg-white/25 rounded-full px-6"
+              >
+                <Share2 className="h-4 w-4 mr-2" />
+                Share
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="bg-white/15 backdrop-blur-sm border-white/30 text-white hover:bg-white/25 rounded-full px-6"
+              >
+                <QrCode className="h-4 w-4 mr-2" />
+                QR Code
+              </Button>
+            </div>
+          </div>
+
+          {/* Links Section */}
+          <div className="space-y-4">
+            {links.map((link, index) => {
+              const IconComponent = getIconComponent(link.icon);
+              return (
+                <Card
+                  key={link.id}
+                  className="bg-white/95 backdrop-blur-sm border-0 shadow-xl cursor-pointer transform transition-all duration-500 hover:scale-105 hover:shadow-2xl rounded-2xl group overflow-hidden"
+                  style={{ 
+                    animationDelay: `${index * 150}ms`,
+                    animation: 'slide-up 0.6s ease-out forwards'
+                  }}
+                  onClick={() => handleLinkClick(link)}
+                >
+                  <CardContent className="p-5">
+                    <div className="flex items-center space-x-4">
+                      {/* Icon */}
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+                        <IconComponent className="h-6 w-6 text-white" />
+                      </div>
+                      
+                      {/* Content */}
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-lg text-gray-900 truncate group-hover:text-purple-600 transition-colors">
+                          {link.title}
+                        </h3>
+                        {link.description && (
+                          <p className="text-sm text-gray-600 truncate">
+                            {link.description}
+                          </p>
+                        )}
+                      </div>
+                      
+                      {/* Arrow */}
+                      <ExternalLink className="h-5 w-5 text-gray-400 group-hover:text-purple-500 group-hover:translate-x-1 transition-all duration-300" />
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+            
+            {links.length === 0 && (
+              <div className="text-center py-16">
+                <div className="w-16 h-16 mx-auto mb-4 bg-white/20 rounded-full flex items-center justify-center">
+                  <Link className="h-8 w-8 text-white" />
+                </div>
+                <p className="text-white/90 text-lg font-medium">No links yet</p>
+                <p className="text-white/70 text-sm">Check back soon for updates!</p>
+              </div>
+            )}
+          </div>
+
+          {/* Footer */}
+          <div className="text-center mt-16 pb-8">
+            <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2">
+              <span className="text-white/80 text-sm">Made with</span>
+              <Heart className="h-4 w-4 text-red-400" />
+              <span className="font-semibold text-white text-sm">KineticLinks</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
